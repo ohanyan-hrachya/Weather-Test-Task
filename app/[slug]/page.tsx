@@ -1,10 +1,11 @@
 "use client";
 
+import { useMemo } from "react";
 import { useAppSelector } from "@/lib/hooks";
 import Current from "../components/Current";
 import Hourly from "../components/Hourly";
-import { selectForecast, selectWeather } from "@/lib/features/search/searchSlice";
-import { useEffect, useState } from "react";
+import { selectForecast, selectStatus, selectWeather } from "@/lib/features/search/searchSlice";
+import styles from "@/app/styles/layout.module.css";
 
 export default function Content({
   params: { slug },
@@ -14,26 +15,43 @@ export default function Content({
 
   const forecast = useAppSelector(selectForecast);
   const weather = useAppSelector(selectWeather);
-  const [current, setCurrent] = useState<any>(null);
+  const status = useAppSelector(selectStatus);
 
-  useEffect(() => {
-    const numberSlug = Number(slug);
-    const current = forecast?.list?.find(({ dt }: any) => dt === numberSlug);
+  const current = useMemo(() => {
+    const list = forecast?.list ?? [];
 
-    if (current) {
-      setCurrent(current)
+    if (!list.length) {
+      return null;
     }
 
-  }, [weather])
+    if (!slug) {
+      return list[0];
+    }
 
-  if (!current) {
-    return;
+    const numberSlug = Number(slug);
+    return list.find(({ dt }: any) => dt === numberSlug) ?? list[0];
+  }, [forecast, slug]);
+
+  if (status === "loading") {
+    return (
+      <section className={styles.loadingState}>
+        <p>Loading forecast…</p>
+      </section>
+    );
+  }
+
+  if (!current || !weather) {
+    return (
+      <section className={styles.loadingState}>
+        <p>Search for a city to view the forecast.</p>
+      </section>
+    );
   }
 
   return (
-    <div>
+    <div className={styles.dashboard}>
       <Current current={current} weather={weather} />
-      <Hourly weather={weather} slug={slug} />
+      <Hourly weather={weather} current={current} />
     </div>
   );
 }
