@@ -8,6 +8,7 @@ export interface SearchSliceState {
     status: "idle" | "loading" | "failed";
     weather: any;
     forecast: any;
+    error: string | null;
 }
 
 const initialState: SearchSliceState = {
@@ -15,6 +16,7 @@ const initialState: SearchSliceState = {
     status: "idle",
     weather: null,
     forecast: null,
+    error: null,
 };
 
 export const searchSlice = createAppSlice({
@@ -29,15 +31,18 @@ export const searchSlice = createAppSlice({
             {
                 pending: (state) => {
                     state.status = "loading";
+                    state.error = null;
                 },
                 fulfilled: (state, action) => {
                     state.status = "idle";
                     state.value = action.payload.value;
                     state.weather = action.payload.weather;
                     state.forecast = action.payload.forecast;
+                    state.error = null;
                 },
-                rejected: (state) => {
+                rejected: (state, action) => {
                     state.status = "failed";
+                    state.error = action.error.message ?? "Search failed.";
                 },
             },
         ),
@@ -47,8 +52,15 @@ export const searchSlice = createAppSlice({
         selectStatus: (search) => search.status,
         selectWeather: (search) => search.weather,
         selectForecast: (search) => search.forecast,
+        selectError: (search) => search.error,
     },
 });
 
 export const { search } = searchSlice.actions;
-export const { selectSearch, selectStatus, selectWeather, selectForecast } = searchSlice.selectors;
+export const {
+    selectSearch,
+    selectStatus,
+    selectWeather,
+    selectForecast,
+    selectError,
+} = searchSlice.selectors;

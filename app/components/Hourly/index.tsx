@@ -1,21 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import styles from "@/app/styles/layout.module.css";
 
-const APIKey = '5d50cb77a4d850371ce5a430e31c9b24';
+const Hourly = ({ weather, current }: { weather: any; current: any }) => {
+    if (!weather || !current) {
+        return null;
+    }
 
-const Hourly = ({ weather, slug }: any) => {
-    const [list, setList] = useState();
-
-    // useEffect(() => {
-    //     (async () => {
-    //         const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast/hourly?lat=${weather.coord.lat}&lon=${weather.coord.lon}&cnt=${5}&appid=${APIKey}`);
-    //         const responce = await res.json()
-    //         setList(responce)
-    //     })()
-    // }, [])
-
-    return <>{JSON.stringify(list)}</>
+    return (
+        <section className={styles.detailsCard}>
+            <h3 className={styles.detailsTitle}>Details</h3>
+            <div className={styles.detailsGrid}>
+                <div className={styles.detailItem}>
+                    <span>Humidity</span>
+                    <strong>{weather.main.humidity}%</strong>
+                </div>
+                <div className={styles.detailItem}>
+                    <span>Wind</span>
+                    <strong>{Math.round(weather.wind.speed)} m/s</strong>
+                </div>
+                <div className={styles.detailItem}>
+                    <span>Pressure</span>
+                    <strong>{weather.main.pressure} hPa</strong>
+                </div>
+                <div className={styles.detailItem}>
+                    <span>Feels like</span>
+                    <strong>{Math.round(weather.main.feels_like)}&deg;</strong>
+                </div>
+                <div className={styles.detailItem}>
+                    <span>Sunrise</span>
+                    <strong>
+                        {new Date(weather.sys.sunrise * 1000).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })}
+                    </strong>
+                </div>
+                <div className={styles.detailItem}>
+                    <span>Sunset</span>
+                    <strong>
+                        {new Date(weather.sys.sunset * 1000).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })}
+                    </strong>
+                </div>
+            </div>
+        </section>
+    );
 };
 
 export default Hourly;
